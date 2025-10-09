@@ -98,6 +98,9 @@ The application will be available at the following URLs:-
 
 - HR Dashboard: http://127.0.0.1:8000/
 - Admin Panel: http://127.0.0.1:8000/admin/
-HR Dashboard: http://127.0.0.1:8000/
 
-Admin Panel: http://127.0.0.1:8000/admin/
+New terminal run commands:-
+
+- cd C:\hr_dashboard_project
+- venv\Scripts\activate
+- python manage.py runserver
