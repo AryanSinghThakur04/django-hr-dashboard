@@ -1,0 +1,35 @@
+hr_dashboard_project/
+│
+├── .gitignore              # Tells Git which files to ignore (like venv).
+├── db.sqlite3              # Your project's database file.
+├── manage.py               # The main script for running Django commands.
+├── README.md               # The project documentation you just added.
+├── requirements.txt        # Lists all the Python packages your project needs.
+│
+├── hr_dashboard/           # The main Django project folder.
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── settings.py         # The main project settings and configuration.
+│   ├── urls.py             # The main URL routing file for the project.
+│   └── wsgi.py
+│
+├── hr_analytics/           # Your custom application for the dashboard logic.
+│   ├── __init__.py
+│   ├── admin.py            # Configures how models appear in the admin panel.
+│   ├── apps.py
+│   ├── models.py           # Defines the database structure (Department, Employee).
+│   ├── tests.py
+│   ├── urls.py             # Handles URL routing specifically for this app.
+│   ├── views.py            # Contains all the core logic for the dashboard.
+│   │
+│   ├── management/         # Folder for custom management commands.
+│   │   ├── __init__.py
+│   │   └── commands/
+│   │       ├── __init__.py
+│   │       └── populate_data.py  # The script to populate the database.
+│   │
+│   └── templates/          # Folder for HTML templates.
+│       └── hr_analytics/
+│           └── dashboard.html  # The main HTML file for the dashboard.
+│
+└── venv/                   # The virtual environment folder (ignored by Git).
