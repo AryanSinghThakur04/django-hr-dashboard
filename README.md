@@ -3,7 +3,7 @@ This project is a comprehensive HR Analytics Dashboard built with Django. It ser
 
 This project was developed to showcase skills in backend development with Django, data analysis, predictive modeling, and modern front-end design.
 
-Features:-
+# Features:-
 
 Interactive Department Filter: Dynamically filter the entire dashboard by a specific department to analyze team-level metrics.
 
@@ -30,7 +30,7 @@ Custom Admin Interface: A customized Django Admin panel for easy management of e
 Sample Data Generation: A custom management command to populate the database with 100 realistic sample employees for immediate use.
 
 
-Tech Stack:-
+# Tech Stack:-
 
 Backend: Django, Python
 
@@ -44,7 +44,7 @@ Frontend: HTML, Tailwind CSS, JavaScript
 
 Charting: Chart.js
 
-Setup and Installation:-
+# Setup and Installation:-
 
 Follow these steps to set up and run the project locally.
 
@@ -89,7 +89,7 @@ Run the custom management command to fill the database with 100 sample employees
 
 - python manage.py populate_data
 
-Usage
+# Usage:-
 Running the Development Server
 Once the setup is complete, you can run the local development server.
 
@@ -100,7 +100,7 @@ The application will be available at the following URLs:-
 - HR Dashboard: http://127.0.0.1:8000/
 - Admin Panel: http://127.0.0.1:8000/admin/
 
-New terminal run commands:-
+# New terminal run commands:-
 
 - cd C:\hr_dashboard_project
 - venv\Scripts\activate
