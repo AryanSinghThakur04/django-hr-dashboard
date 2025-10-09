@@ -94,14 +94,14 @@ def dashboard_view(request):
         'dept_employee_counts': dept_employee_counts,
         'salary_labels': salary_labels,
         'avg_salaries': avg_salaries,
-        'prediction_data_json': json.dumps(prediction_data) if prediction_data else "null",
+        # THE FIX: Pass the Python dictionary directly, not a JSON string.
+        'prediction_data': prediction_data,
         'performance_labels': performance_labels,
         'performance_data': performance_data,
         'tenure_labels': tenure_labels,
         'tenure_data': tenure_data,
         'departments': Department.objects.all(),
         'selected_department_id': int(selected_department_id) if selected_department_id else None,
-        # New context for new charts
         'hiring_trend_labels': hiring_trend_labels,
         'hiring_trend_data': hiring_trend_data,
         'role_labels': role_labels,

@@ -94,7 +94,7 @@
     {{ dept_employee_counts|json_script:"dept-employee-counts" }}
     {{ salary_labels|json_script:"salary-labels" }}
     {{ avg_salaries|json_script:"avg-salaries" }}
-    {{ prediction_data_json|json_script:"prediction-data" }}
+    {{ prediction_data|json_script:"prediction-data" }}
     {{ performance_labels|json_script:"performance-labels" }}
     {{ performance_data|json_script:"performance-data" }}
     {{ tenure_labels|json_script:"tenure-labels" }}
@@ -141,7 +141,7 @@
 
             const predictionCtx = document.getElementById('predictionChart')?.getContext('2d');
             const predictionData = getJsonData('prediction-data');
-            if (predictionCtx && predictionData) {
+            if (predictionCtx && predictionData && predictionData.predicted_salaries && predictionData.actual_tenures) {
                  new Chart(predictionCtx, {
                     type: 'scatter',
                     data: {
