@@ -29,8 +29,6 @@ Custom Admin Interface: A customized Django Admin panel for easy management of e
 
 Sample Data Generation: A custom management command to populate the database with 100 realistic sample employees for immediate use.
 
-Dashboard Preview
-(You can add a screenshot of your new dashboard here)
 
 Tech Stack:-
 
