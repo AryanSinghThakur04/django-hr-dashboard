@@ -1,4 +1,4 @@
-Django HR Analytics Dashboard
+Django HR Analytics Dashboard 
 This project is a comprehensive HR Analytics Dashboard built with Django. It serves as a powerful tool for HR managers and analysts to gain actionable insights into their workforce data. The dashboard provides a clean, interactive, and visually appealing interface to explore key metrics, analyze trends, and make data-driven decisions.
 
 This project was developed to showcase skills in backend development with Django, data analysis, predictive modeling, and modern front-end design.
