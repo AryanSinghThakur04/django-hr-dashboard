@@ -16,21 +16,21 @@ def dashboard_view(request):
     Handles data aggregation, prediction, and filtering.
     """
     
-    # --- 1. Department Filtering ---
+    # 1.Department Filtering
     selected_department_id = request.GET.get('department')
     
     employees = Employee.objects.all()
     if selected_department_id:
         employees = employees.filter(department_id=selected_department_id)
 
-    # --- 2. Core Metrics ---
+    # 2.Core Metrics
     total_employees = employees.count()
     average_salary = employees.aggregate(avg_salary=Avg('salary'))['avg_salary'] or 0
     
     total_tenure = sum(emp.tenure_in_years for emp in employees)
     average_tenure = (total_tenure / total_employees) if total_employees > 0 else 0
 
-    # --- 3. Existing Chart Data ---
+    # 3.Existing Chart Data
     depts = Department.objects.annotate(employee_count=Count('employees')).order_by('name')
     dept_labels = [d.name for d in depts]
     dept_employee_counts = [d.employee_count for d in depts]
@@ -54,7 +54,7 @@ def dashboard_view(request):
     tenure_labels = list(tenure_bins.keys())
     tenure_data = list(tenure_bins.values())
 
-    # --- 4. NEW CHARTS ---
+    # 4.NEW CHARTS
     # Hiring Trend Over Time
     hiring_trend = employees.annotate(month=TruncMonth('hire_date')).values('month').annotate(count=Count('id')).order_by('month')
     hiring_trend_labels = [h['month'].strftime('%b %Y') for h in hiring_trend]
@@ -70,7 +70,7 @@ def dashboard_view(request):
         role_labels.append('Other')
         role_data.append(other_count)
 
-    # --- 5. Predictive Analysis ---
+    # 5.Predictive Analysis
     all_employees_for_pred = Employee.objects.all()
     prediction_data = None
     if all_employees_for_pred.count() > 1:
@@ -85,7 +85,7 @@ def dashboard_view(request):
             'predicted_salaries': [float(s) for s in predicted_salaries]
         }
 
-    # --- 6. Prepare Context ---
+    # 6.Prepare Context
     context = {
         'total_employees': total_employees,
         'average_salary': average_salary,
@@ -94,7 +94,6 @@ def dashboard_view(request):
         'dept_employee_counts': dept_employee_counts,
         'salary_labels': salary_labels,
         'avg_salaries': avg_salaries,
-        # THE FIX: Pass the Python dictionary directly, not a JSON string.
         'prediction_data': prediction_data,
         'performance_labels': performance_labels,
         'performance_data': performance_data,
