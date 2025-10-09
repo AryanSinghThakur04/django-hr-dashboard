@@ -57,6 +57,7 @@ Git
 2. Clone and Set Up the Project
 # Clone the repository
 git clone [https://github.com/your-username/django-hr-dashboard.git](https://github.com/your-username/django-hr-dashboard.git)
+
 cd django-hr-dashboard
 
 # Create and activate a virtual environment
