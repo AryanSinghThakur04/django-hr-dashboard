@@ -5,13 +5,14 @@ from datetime import date
 
 from django.db import models
 from django.shortcuts import render
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q # Import Q for complex lookups
 from django.db.models.functions import TruncMonth
+from django.contrib.auth.decorators import login_required
 
 from .models import Employee, Department
 from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.model_selection import train_test_split
 
+@login_required
 def dashboard_view(request):
     """
     Main view for the HR analytics dashboard.
@@ -36,37 +37,33 @@ def dashboard_view(request):
 
     # --- 3. Attrition Prediction Model ---
     attrition_risk_count = 0
-    # We need enough historical data to train a meaningful model
     if all_employees.count() > 10 and all_employees.filter(is_active=False).count() > 1:
-        # Prepare data using pandas: features (X) and target (y)
         df = pd.DataFrame.from_records(all_employees.values('tenure_in_years', 'salary', 'performance_score', 'is_active'))
-        
         X = df[['tenure_in_years', 'salary', 'performance_score']]
-        # Target: 1 represents attrition (is_active=False), 0 represents active
         y = df['is_active'].apply(lambda x: 0 if x else 1) 
 
-        # Train a Logistic Regression model on the entire historical dataset
-        attrition_model = LogisticRegression()
+        attrition_model = LogisticRegression(max_iter=1000) # Added max_iter for convergence
         attrition_model.fit(X, y)
 
-        # Now, predict on the current, active employees to find who is at risk
         current_employees_df = pd.DataFrame.from_records(
             active_employees.values('tenure_in_years', 'salary', 'performance_score')
         )
         if not current_employees_df.empty:
-            # Predict the probability of attrition (class 1) for each active employee
             risk_probabilities = attrition_model.predict_proba(current_employees_df)[:, 1]
-            # Consider 'high risk' if the model's predicted probability of leaving is > 50%
             attrition_risk_count = int(np.sum(risk_probabilities > 0.5))
 
 
     # --- 4. Chart Data ---
-    # Department charts should always show all departments for comparison, but count only active employees
-    depts = Department.objects.annotate(employee_count=Count('employees', filter=models.Q(employees__is_active=True))).order_by('name')
+    # FIX: Department charts now correctly count ONLY active employees.
+    depts = Department.objects.annotate(
+        employee_count=Count('employees', filter=Q(employees__is_active=True))
+    ).order_by('name')
     dept_labels = [d.name for d in depts]
     dept_employee_counts = [d.employee_count for d in depts]
 
-    salaries_by_dept = Department.objects.annotate(avg_salary=Avg('employees__salary', filter=models.Q(employees__is_active=True))).order_by('name')
+    salaries_by_dept = Department.objects.annotate(
+        avg_salary=Avg('employees__salary', filter=Q(employees__is_active=True))
+    ).order_by('name')
     salary_labels = [d.name for d in salaries_by_dept]
     avg_salaries = [round(float(d.avg_salary or 0), 2) for d in salaries_by_dept]
     
@@ -113,7 +110,7 @@ def dashboard_view(request):
         'total_employees': total_employees,
         'average_salary': average_salary,
         'average_tenure': average_tenure,
-        'attrition_risk_count': attrition_risk_count, # NEW CONTEXT VARIABLE
+        'attrition_risk_count': attrition_risk_count,
         'dept_labels': dept_labels,
         'dept_employee_counts': dept_employee_counts,
         'salary_labels': salary_labels,
