@@ -9,11 +9,11 @@ This project is packed with features designed to provide actionable insights int
 
 Core Dashboard & Visualizations:-
 
-I- nteractive UI: A clean, modern, and compact dashboard interface designed for a professional user experience.
+- Interactive UI: A clean, modern, and compact dashboard interface designed for a professional user experience.
 
 - Key Metric Cards: At-a-glance cards for critical metrics like Total Active Employees, Average Salary, Average Tenure, and Predicted Attrition Risk.
 
-I- nteractive Filtering: A powerful dropdown menu to filter the entire dashboard by department.
+- Interactive Filtering: A powerful dropdown menu to filter the entire dashboard by department.
 
 - Multiple Charts: A variety of charts to visualize data from different angles:
 
