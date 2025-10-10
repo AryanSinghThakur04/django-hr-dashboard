@@ -8,20 +8,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .metric-card {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .chart-container {
-            height: 280px; /* Consistent height for charts */
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .metric-card { transition: all 0.2s ease-in-out; }
+        .metric-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .chart-container { height: 280px; }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
@@ -30,7 +20,7 @@
         <!-- Header -->
         <header class="mb-8 p-6 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg">
             <h1 class="text-3xl font-bold tracking-tight">HR Analytics Dashboard</h1>
-            <p class="mt-1 text-indigo-100">Key insights into our workforce.</p>
+            <p class="mt-1 text-indigo-100">Advanced workforce insights and predictions.</p>
         </header>
         
         <!-- Filter Section -->
@@ -52,8 +42,9 @@
             </form>
         </div>
 
-        <!-- Main Metrics -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Main Metrics - NOW A 4-COLUMN GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Employees Card -->
             <div class="metric-card bg-white p-6 rounded-2xl shadow-md flex items-center space-x-4">
                 <div class="bg-blue-100 p-3 rounded-full"><svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></div>
                 <div>
@@ -61,6 +52,15 @@
                     <p class="text-3xl font-bold text-gray-800">{{ total_employees }}</p>
                 </div>
             </div>
+             <!-- Attrition Risk Card - NEW -->
+            <div class="metric-card bg-white p-6 rounded-2xl shadow-md flex items-center space-x-4">
+                <div class="bg-red-100 p-3 rounded-full"><svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6h12a6 6 0 00-6-6zM21 21h-6m6 0v-6m0 6l-6-6"></path></svg></div>
+                <div>
+                    <p class="text-sm text-gray-500">Attrition Risk</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ attrition_risk_count }} <span class="text-lg font-medium">Employees</span></p>
+                </div>
+            </div>
+            <!-- Average Salary Card -->
             <div class="metric-card bg-white p-6 rounded-2xl shadow-md flex items-center space-x-4">
                  <div class="bg-green-100 p-3 rounded-full"><svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01M12 6v-1m0 1H9m3 0h3m-3 18l-4-4m0 0l-4-4m4 4l4 4m0 0l4-4m-4 4v-4m0 4h-4m8 0h4m-4-8a3.5 3.5 0 00-3.5-3.5m3.5 3.5a3.5 3.5 0 01-3.5 3.5m3.5-3.5h-2m2 0h2"></path></svg></div>
                 <div>
@@ -68,6 +68,7 @@
                     <p class="text-3xl font-bold text-gray-800">${{ average_salary|floatformat:2 }}</p>
                 </div>
             </div>
+            <!-- Average Tenure Card -->
             <div class="metric-card bg-white p-6 rounded-2xl shadow-md flex items-center space-x-4">
                  <div class="bg-yellow-100 p-3 rounded-full"><svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>
                 <div>
@@ -115,12 +116,10 @@
             
             const CHART_COLORS = ['#4F46E5', '#7C3AED', '#3B82F6', '#10B981', '#F59E0B', '#EC4899', '#14B8A6'];
 
-            // Chart Rendering Functions
             const renderBarChart = (ctx, labels, data, label, color) => new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ label, data, backgroundColor: color, borderRadius: 4 }] }, options: { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
             const renderDoughnutChart = (ctx, labels, data, label) => new Chart(ctx, { type: 'doughnut', data: { labels, datasets: [{ label, data, backgroundColor: CHART_COLORS, hoverOffset: 4 }] }, options: { maintainAspectRatio: false, responsive: true, plugins: { legend: { position: 'top' } } } });
             const renderLineChart = (ctx, labels, data, label, color) => new Chart(ctx, { type: 'line', data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: color + '33', fill: true, tension: 0.1 }] }, options: { maintainAspectRatio: false, responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
 
-            // Initialize Charts
             const employeeCountCtx = document.getElementById('employeeCountChart')?.getContext('2d');
             if (employeeCountCtx) renderBarChart(employeeCountCtx, getJsonData('dept-labels'), getJsonData('dept-employee-counts'), 'Employees', CHART_COLORS[0]);
             

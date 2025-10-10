@@ -16,12 +16,17 @@ class Employee(models.Model):
     hire_date = models.DateField()
     salary = models.DecimalField(max_digits=10, decimal_places=2)
     performance_score = models.IntegerField(choices=[(i, i) for i in range(1, 6)]) # Score from 1 to 5
+    
+    # --- NEW FIELDS FOR ATTRITION ---
+    is_active = models.BooleanField(default=True)
+    termination_date = models.DateField(null=True, blank=True)
 
     @property
     def tenure_in_years(self):
         """Calculates employee tenure in years."""
-        today = timezone.now().date()
-        return (today - self.hire_date).days / 365.25
+        end_date = self.termination_date or timezone.now().date()
+        return (end_date - self.hire_date).days / 365.25
 
     def __str__(self):
         return f"{self.name} ({self.employee_id})"
+
