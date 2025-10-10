@@ -49,10 +49,11 @@ Follow these steps to get the project running locally.
 1. Prerequisites
 
 Python 3.8+
+
 Git
 
 2. Clone the Repository
-3. 
+   
 git clone [https://github.com/your-username/django-hr-dashboard.git](https://github.com/your-username/django-hr-dashboard.git)
 cd django-hr-dashboard
 
