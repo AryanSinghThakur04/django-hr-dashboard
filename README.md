@@ -57,41 +57,43 @@ Git
 git clone [https://github.com/your-username/django-hr-dashboard.git](https://github.com/your-username/django-hr-dashboard.git)
 cd django-hr-dashboard
 
-4. Create and Activate a Virtual Environment
+3. Create and Activate a Virtual Environment
 On Windows:
 
 python -m venv venv
+
 venv\Scripts\activate
 
 On macOS/Linux:
 
 python3 -m venv venv
+
 source venv/bin/activate
 
 4. Install Dependencies
    
 pip install -r requirements.txt
 
-6. Apply Database Migrations
+5. Apply Database Migrations
    
 This will create the necessary tables in your database based on the models.
 
 python manage.py makemigrations hr_analytics
 python manage.py migrate
 
-6. Create a Superuser
+7. Create a Superuser
    
 This account will be used to access the Django Admin interface. Follow the prompts to create a username and password.
 
 python manage.py createsuperuser
 
-7. Populate the Database with Sample Data
+8. Populate the Database with Sample Data
    
 Run the custom management command to fill the database with 150 employees (100 active, 50 inactive for model training).
 
 python manage.py populate_data
 
-8. Run the Development Server
+9. Run the Development Server
    
 python manage.py runserver
 
