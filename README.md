@@ -47,15 +47,16 @@ Realistic Sample Data: A custom management command (populate_data) uses the Fake
 Follow these steps to get the project running locally.
 
 1. Prerequisites
-Python 3.8+
 
+Python 3.8+
 Git
 
 2. Clone the Repository
+3. 
 git clone [https://github.com/your-username/django-hr-dashboard.git](https://github.com/your-username/django-hr-dashboard.git)
 cd django-hr-dashboard
 
-3. Create and Activate a Virtual Environment
+4. Create and Activate a Virtual Environment
 On Windows:
 
 python -m venv venv
@@ -67,31 +68,36 @@ python3 -m venv venv
 source venv/bin/activate
 
 4. Install Dependencies
+   
 pip install -r requirements.txt
 
-5. Apply Database Migrations
+6. Apply Database Migrations
+   
 This will create the necessary tables in your database based on the models.
 
 python manage.py makemigrations hr_analytics
 python manage.py migrate
 
 6. Create a Superuser
+   
 This account will be used to access the Django Admin interface. Follow the prompts to create a username and password.
 
 python manage.py createsuperuser
 
 7. Populate the Database with Sample Data
+   
 Run the custom management command to fill the database with 150 employees (100 active, 50 inactive for model training).
 
 python manage.py populate_data
 
 8. Run the Development Server
+   
 python manage.py runserver
 
 
-The HR Dashboard will be available at http://127.0.0.1:8000/
+- The HR Dashboard will be available at http://127.0.0.1:8000/
 
-The Admin Panel will be available at http://127.0.0.1:8000/admin/
+- The Admin Panel will be available at http://127.0.0.1:8000/admin/
 
 
 How the Attrition Model Works:
