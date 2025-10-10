@@ -42,9 +42,9 @@ Realistic Sample Data: A custom management command (populate_data) uses the Fake
 
 - Database: SQLite (default)
 
-Setup and Installation:-
+# Setup and Installation:-
 
-# Follow these steps to get the project running locally.
+Follow these steps to get the project running locally.
 
 1. Prerequisites
 Python 3.8+
