@@ -1,8 +1,6 @@
 from django.contrib import admin
 from .models import Department, Employee
 
-# Register your models here to make them visible in the admin panel.
-
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('name',)

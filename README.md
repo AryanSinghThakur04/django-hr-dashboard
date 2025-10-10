@@ -1,104 +1,110 @@
-Django HR Analytics Dashboard
-This project is a comprehensive HR Analytics Dashboard built with Django. It serves as a powerful tool for HR managers and analysts to gain actionable insights into their workforce data. The dashboard provides a clean, interactive, and visually appealing interface to explore key metrics, analyze trends, and make data-driven decisions.
+Django HR Analytics & Attrition Prediction Dashboard
 
-This project was developed to showcase skills in backend development with Django, data analysis, predictive modeling, and modern front-end design.
+This project is a comprehensive HR Analytics Dashboard built with Django. It serves as a powerful tool for HR managers and data analysts to gain actionable insights into their workforce, visualize key metrics, and predict employee attrition using a machine learning model.
 
-# Features:-
+# Key Features:-
 
-Interactive Department Filter: Dynamically filter the entire dashboard by a specific department to analyze team-level metrics.
+- Interactive Dashboard: A clean, modern, and compact user interface built with Tailwind CSS and Chart.js.
 
-Core HR Metrics: At-a-glance cards for Total Employees, Average Salary, and Average Tenure.
+- Core HR Metrics: At-a-glance cards for critical numbers like Total Active Employees, Average Salary, and Average Tenure.
 
-Data Visualization: A suite of interactive charts built with Chart.js, including:
+Advanced Predictive Analytics:
 
-- Employee Count by Department
+- Employee Attrition Risk: Utilizes a Logistic Regression model trained on historical data to predict the number of current employees at high risk of leaving the company.
 
-- Average Salary by Department
+- Salary Prediction: Implements a Linear Regression model to forecast salary trends based on employee tenure.
 
-- Role Distribution (Pie Chart)
+- Dynamic Filtering: An interactive dropdown menu allows for filtering the entire dashboard by department for more granular analysis.
 
-- Hiring Trend Over Time (Line Chart)
+Rich Data Visualizations: A suite of charts to provide a deep understanding of the workforce:
+
+- Employee Count & Average Salary by Department
 
 - Performance Score Distribution (Doughnut Chart)
 
-- Employee Tenure Distribution
+- Employee Tenure Distribution (Bar Chart)
 
-Predictive Insights: A scatter plot with a linear regression trend line to predict future salary based on employee tenure.
+- Hiring Trends Over Time (Line Chart)
 
-Custom Admin Interface: A customized Django Admin panel for easy management of employee and department data.
+- Top 5 Role Distribution (Pie Chart)
 
-Sample Data Generation: A custom management command to populate the database with 100 realistic sample employees for immediate use.
+Custom Admin Panel: A customized Django admin interface for easy data management of employees and departments.
 
+Realistic Sample Data: A custom management command (populate_data) uses the Faker library to generate a realistic dataset, including historical attrition data for model training.
 
 # Tech Stack:-
 
-Backend: Django, Python
+- Backend: Python, Django
 
-Database: SQLite (default)
+- Data Analysis & ML: Pandas, NumPy, Scikit-learn
 
-Data Analysis: Pandas, NumPy
+- Frontend: HTML, Tailwind CSS, Chart.js
 
-Predictive Modeling: Scikit-learn
+- Database: SQLite (default)
 
-Frontend: HTML, Tailwind CSS, JavaScript
+Setup and Installation:-
 
-Charting: Chart.js
-
-# Setup and Installation:-
-
-Follow these steps to set up and run the project locally.
+# Follow these steps to get the project running locally.
 
 1. Prerequisites
-   
 Python 3.8+
 
 Git
 
-2. Clone and Set Up the Project
-# Clone the repository
+2. Clone the Repository
 git clone [https://github.com/your-username/django-hr-dashboard.git](https://github.com/your-username/django-hr-dashboard.git)
-
 cd django-hr-dashboard
 
-# Create and activate a virtual environment
+3. Create and Activate a Virtual Environment
+On Windows:
+
 python -m venv venv
-# On Windows:
-- venv\Scripts\activate
-# On macOS/Linux:
-- source venv/bin/activate
+venv\Scripts\activate
 
-# Install the required dependencies
-- pip install -r requirements.txt
+On macOS/Linux:
 
-3. Configure the Database
-This project uses SQLite by default, which requires no extra setup. The migration commands will create the database file.
+python3 -m venv venv
+source venv/bin/activate
 
-# Apply database migrations
-- python manage.py makemigrations hr_analytics
-- python manage.py migrate
+4. Install Dependencies
+pip install -r requirements.txt
 
-4. Create a Superuser
-This account is needed to access the Django Admin panel.
+5. Apply Database Migrations
+This will create the necessary tables in your database based on the models.
 
-- python manage.py createsuperuser
+python manage.py makemigrations hr_analytics
+python manage.py migrate
 
-Follow the prompts to create your username and password.
+6. Create a Superuser
+This account will be used to access the Django Admin interface. Follow the prompts to create a username and password.
 
-5. Populate with Sample Data
-Run the custom management command to fill the database with 100 sample employees.
+python manage.py createsuperuser
 
-- python manage.py populate_data
+7. Populate the Database with Sample Data
+Run the custom management command to fill the database with 150 employees (100 active, 50 inactive for model training).
 
-# Usage:-
-Running the Development Server
-Once the setup is complete, you can run the local development server.
+python manage.py populate_data
 
-- python manage.py runserver
+8. Run the Development Server
+python manage.py runserver
 
-The application will be available at the following URLs:-
 
-- HR Dashboard: http://127.0.0.1:8000
-- Admin Panel: http://127.0.0.1:8000/admin
+The HR Dashboard will be available at http://127.0.0.1:8000/
+
+The Admin Panel will be available at http://127.0.0.1:8000/admin/
+
+
+How the Attrition Model Works:
+
+The predictive model is a key feature of this project.
+
+The populate_data command generates a dataset with both active and inactive (terminated) employees. This historical data serves as the training ground.
+
+In views.py, a LogisticRegression model from Scikit-learn is trained on this dataset. It learns the patterns associated with employees who have left, based on features like tenure, salary, and performance score.
+
+The trained model is then used to predict the probability of attrition for all current active employees.
+
+Employees with a predicted probability of leaving greater than 50% are flagged as "high risk," and the total count is displayed on the dashboard.
 
 # New terminal run commands:-
 
