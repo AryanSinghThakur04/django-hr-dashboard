@@ -5,7 +5,7 @@ from datetime import date
 
 from django.db import models
 from django.shortcuts import render
-from django.db.models import Avg, Count, Q # Import Q for complex lookups
+from django.db.models import Avg, Count, Q
 from django.db.models.functions import TruncMonth
 from django.contrib.auth.decorators import login_required
 
@@ -30,31 +30,50 @@ def dashboard_view(request):
     if selected_department_id:
         employees_to_display = active_employees.filter(department_id=selected_department_id)
 
-    # --- 2. Core Metrics (based on active, filtered employees) ---
+    # --- 2. Core Metrics ---
     total_employees = employees_to_display.count()
     average_salary = employees_to_display.aggregate(avg_salary=Avg('salary'))['avg_salary'] or 0
     average_tenure = sum(emp.tenure_in_years for emp in employees_to_display) / total_employees if total_employees > 0 else 0
 
     # --- 3. Attrition Prediction Model ---
     attrition_risk_count = 0
+    # Check if we have enough data to train (need both active and inactive examples)
     if all_employees.count() > 10 and all_employees.filter(is_active=False).count() > 1:
-        df = pd.DataFrame.from_records(all_employees.values('tenure_in_years', 'salary', 'performance_score', 'is_active'))
+        # FIX: We build the list manually instead of using .values() because tenure_in_years is a property
+        training_data = [
+            {
+                'tenure_in_years': emp.tenure_in_years,
+                'salary': float(emp.salary),
+                'performance_score': emp.performance_score,
+                'is_active': 1 if emp.is_active else 0
+            }
+            for emp in all_employees
+        ]
+        
+        df = pd.DataFrame(training_data)
         X = df[['tenure_in_years', 'salary', 'performance_score']]
-        y = df['is_active'].apply(lambda x: 0 if x else 1) 
+        y = df['is_active'].apply(lambda x: 0 if x == 1 else 1) # 1 for attrition risk
 
-        attrition_model = LogisticRegression(max_iter=1000) # Added max_iter for convergence
+        attrition_model = LogisticRegression(max_iter=1000)
         attrition_model.fit(X, y)
 
-        current_employees_df = pd.DataFrame.from_records(
-            active_employees.values('tenure_in_years', 'salary', 'performance_score')
-        )
-        if not current_employees_df.empty:
+        # Predict for current active employees
+        current_data = [
+            {
+                'tenure_in_years': emp.tenure_in_years,
+                'salary': float(emp.salary),
+                'performance_score': emp.performance_score
+            }
+            for emp in active_employees
+        ]
+        
+        if current_data:
+            current_employees_df = pd.DataFrame(current_data)
             risk_probabilities = attrition_model.predict_proba(current_employees_df)[:, 1]
             attrition_risk_count = int(np.sum(risk_probabilities > 0.5))
 
 
     # --- 4. Chart Data ---
-    # FIX: Department charts now correctly count ONLY active employees.
     depts = Department.objects.annotate(
         employee_count=Count('employees', filter=Q(employees__is_active=True))
     ).order_by('name')
@@ -67,7 +86,6 @@ def dashboard_view(request):
     salary_labels = [d.name for d in salaries_by_dept]
     avg_salaries = [round(float(d.avg_salary or 0), 2) for d in salaries_by_dept]
     
-    # Other charts are based on the filtered set of active employees
     performance_counts = employees_to_display.values('performance_score').annotate(count=Count('id')).order_by('performance_score')
     performance_labels = [f"Score {item['performance_score']}" for item in performance_counts]
     performance_data = [item['count'] for item in performance_counts]
@@ -91,11 +109,12 @@ def dashboard_view(request):
     role_labels = [r['role'] for r in role_counts]
     role_data = [r['count'] for r in role_counts]
 
-    # --- 5. Salary Prediction (based on active employees) ---
+    # --- 5. Salary Prediction ---
     prediction_data = None
     if active_employees.count() > 1:
+        # Using dot notation on objects here is safe
         tenures = np.array([e.tenure_in_years for e in active_employees]).reshape(-1, 1)
-        salaries = np.array([e.salary for e in active_employees])
+        salaries = np.array([float(e.salary) for e in active_employees])
         model = LinearRegression().fit(tenures, salaries)
         future_tenures = np.array(range(0, 21)).reshape(-1, 1)
         predicted_salaries = model.predict(future_tenures)
@@ -105,7 +124,7 @@ def dashboard_view(request):
             'predicted_salaries': [float(s) for s in predicted_salaries]
         }
 
-    # --- 6. Prepare Context for Template ---
+    # --- 6. Prepare Context ---
     context = {
         'total_employees': total_employees,
         'average_salary': average_salary,
@@ -129,4 +148,3 @@ def dashboard_view(request):
     }
 
     return render(request, 'hr_analytics/dashboard.html', context)
-
