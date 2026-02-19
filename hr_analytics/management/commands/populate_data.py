@@ -80,4 +80,8 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f'Successfully created {len(employees_to_create)} total employees '
             f'(200 active, 80 inactive) across 12 departments.'
+<<<<<<< HEAD
         ))
+=======
+        ))
+>>>>>>> 30e69e80bba0a15c82ff97866af95ee070d12539
