@@ -3,362 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Analytics Dashboard</title>
+    <title>HR Intel | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .chart-container { position: relative; height: 300px; width: 100%; }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    </style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 1.25rem; }
+        .chart-container { position: relative; height: 260px; width: 100%; }
+        .sidebar-link { transition: all 0.2s; border-radius: 0.75rem; }
+        .sidebar-link:hover { background-color: rgba(79, 70, 229, 0.1); color: #4f46e1; }
+        .metric-icon { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; }
+    </script>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="text-slate-700">
 
-    <div class="min-h-screen p-4 sm:p-6 lg:p-8">
-        <div class="max-w-7xl mx-auto">
-            
-            <!-- Header -->
-            <div class="mb-6 flex flex-col sm:flex-row justify-between items-center p-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-lg">
-                <div>
-                    <h1 class="text-2xl font-bold">HR Analytics Dashboard</h1>
-                    <p class="text-indigo-200">Key insights into our workforce.</p>
+    <!-- App Shell -->
+    <div class="flex min-h-screen">
+        
+        <!-- Sidebar -->
+        <aside class="hidden lg:flex flex-col w-64 bg-white border-r border-slate-200 p-6 fixed h-full">
+            <div class="flex items-center gap-3 mb-10 px-2">
+                <div class="bg-indigo-600 p-2 rounded-xl text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
                 </div>
-                {% if user.is_authenticated %}
-                <div class="flex items-center mt-4 sm:mt-0">
-                    <span class="mr-4">Welcome, {{ user.username }}</span>
-                    <form action="{% url 'logout' %}" method="post" class="inline">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                              <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V5h10a1 1 0 100-2H3zm12.293 4.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L16.586 13H9a1 1 0 110-2h7.586l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                            Logout
-                        </button>
-                    </form>
-                </div>
-                {% endif %}
+                <span class="text-xl font-bold text-slate-900 tracking-tight">HR Intel</span>
             </div>
 
-            <!-- Filter and Metrics -->
-            <div class="mb-6">
-                <!-- Department Filter Form -->
-                <form method="get" action="{% url 'hr_analytics:dashboard' %}" class="mb-6 p-4 bg-white rounded-lg shadow flex items-center space-x-4">
-                    <label for="department" class="font-semibold">Filter by Department:</label>
-                    <select name="department" id="department" class="block w-full sm:w-64 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                        <option value="">All Departments</option>
-                        {% for dept in departments %}
-                            <option value="{{ dept.id }}" {% if dept.id == selected_department_id %}selected{% endif %}>{{ dept.name }}</option>
+            <nav class="space-y-2 flex-grow">
+                <a href="#" class="sidebar-link flex items-center gap-3 px-4 py-3 bg-indigo-50 text-indigo-600 font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                    Dashboard
+                </a>
+                <a href="{% url 'hr_analytics:employee_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-3 text-slate-500 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    Team Directory
+                </a>
+                <a href="/admin" class="sidebar-link flex items-center gap-3 px-4 py-3 text-slate-500 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /></svg>
+                    Admin Console
+                </a>
+            </nav>
+
+            <div class="mt-auto p-4 bg-slate-50 rounded-2xl">
+                <p class="text-xs text-slate-400 mb-1">Signed in as</p>
+                <p class="text-sm font-bold text-slate-900 mb-4">{{ user.username }}</p>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full text-sm font-bold text-red-500 hover:text-red-700 transition flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow lg:ml-64 p-4 md:p-10">
+            
+            <!-- Top Header -->
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Workforce Overview</h2>
+                    <p class="text-slate-500">Insights and analytics for the current quarter.</p>
+                </div>
+
+                <form method="get" class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+                    <select name="department" class="bg-transparent border-none text-sm font-semibold text-slate-700 focus:ring-0 cursor-pointer">
+                        <option value="">Full Company</option>
+                        {% for d in departments %}
+                            <option value="{{ d.id }}" {% if d.id == selected_department_id %}selected{% endif %}>{{ d.name }}</option>
                         {% endfor %}
                     </select>
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Filter</button>
-                    <a href="{% url 'hr_analytics:dashboard' %}" class="text-gray-600 hover:text-indigo-600">Clear</a>
+                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700 transition">Filter</button>
+                    {% if selected_department_id %}
+                        <a href="?" class="text-slate-400 hover:text-indigo-600 px-2"><svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" /></svg></a>
+                    {% endif %}
                 </form>
+            </header>
 
-                <!-- Key Metrics Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Attrition Risk Card -->
-                    <div class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
-                         <div class="bg-red-100 rounded-full p-3">
-                            <svg class="w-6 h-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-sm">Attrition Risk</p>
-                            <p class="text-2xl font-bold">{{ attrition_risk_count }} Employees</p>
-                        </div>
+            <!-- Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <!-- Headcount -->
+                <div class="glass-card p-6 cursor-pointer hover:shadow-md transition group" onclick="window.location.href='{% url 'hr_analytics:employee_list' %}{% if selected_department_id %}?department={{ selected_department_id }}{% endif %}'">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="metric-icon bg-blue-100 text-blue-600"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div>
+                        <span class="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded-full group-hover:bg-blue-600 group-hover:text-white transition">View List</span>
                     </div>
-                    <!-- Total Employees Card -->
-                    <div class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
-                         <div class="bg-blue-100 rounded-full p-3">
-                            <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.5-2.962A3 3 0 0115 9.75V9A6 6 0 003 9v.75a3 3 0 01-2.25-2.962m13.5 0A3 3 0 009 7.5V9a6 6 0 00-6 6v.75a3 3 0 00-2.25 2.962m13.5 0A3 3 0 009 19.5V21a6 6 0 006-6v-.75a3 3 0 002.25-2.962m-13.5 0A3 3 0 013 16.5V15a6 6 0 016-6v.75a3 3 0 012.25 2.962" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-sm">Total Employees</p>
-                            <p class="text-2xl font-bold">{{ total_employees }}</p>
-                        </div>
+                    <p class="text-slate-500 text-sm font-medium">Headcount</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ total_employees }}</h3>
+                </div>
+
+                <!-- Attrition -->
+                <div class="glass-card p-6 border-l-4 border-rose-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="metric-icon bg-rose-100 text-rose-600"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg></div>
                     </div>
-                    <!-- Average Salary Card -->
-                    <div class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
-                        <div class="bg-green-100 rounded-full p-3">
-                            <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 11.21 12.77 11 12 11c-.77 0-1.536.21-2.121.659l-.879.659M7.5 14.25l-2.489-1.833a4.5 4.5 0 011.08-6.556l2.49-1.833M16.5 14.25l2.489-1.833a4.5 4.5 0 00-1.08-6.556l-2.49-1.833" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-sm">Average Salary</p>
-                            <p class="text-2xl font-bold">${{ average_salary|floatformat:2 }}</p>
-                        </div>
+                    <p class="text-slate-500 text-sm font-medium">Risk Analysis</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ attrition_risk_count }} <span class="text-sm font-normal text-rose-500">predicted</span></h3>
+                </div>
+
+                <!-- Salary -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="metric-icon bg-emerald-100 text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
                     </div>
-                    <!-- Average Tenure Card -->
-                    <div class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
-                        <div class="bg-yellow-100 rounded-full p-3">
-                            <svg class="w-6 h-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-sm">Average Tenure</p>
-                            <p class="text-2xl font-bold">{{ average_tenure|floatformat:1 }} years</p>
-                        </div>
+                    <p class="text-slate-500 text-sm font-medium">Avg Annual Comp</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1">${{ average_salary|floatformat:0 }}</h3>
+                </div>
+
+                <!-- Tenure -->
+                <div class="glass-card p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="metric-icon bg-amber-100 text-amber-600"><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
                     </div>
+                    <p class="text-slate-500 text-sm font-medium">Avg Experience</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-1">{{ average_tenure|floatformat:1 }} <span class="text-sm font-normal">Years</span></h3>
                 </div>
             </div>
 
             <!-- Charts Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                 <!-- Employee Count Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="font-semibold mb-4">Employee Count by Department</h3>
-                    <div class="chart-container"><canvas id="employeeCountChart"></canvas></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="glass-card p-8 lg:col-span-2 shadow-sm hover:shadow-md transition">
+                    <h4 class="font-bold text-slate-800 mb-6 flex items-center justify-between">
+                        Business Unit Strength
+                        <span class="text-[10px] text-indigo-500 font-bold uppercase tracking-wider">Top Performing</span>
+                    </h4>
+                    <div class="chart-container"><canvas id="deptCountChart"></canvas></div>
                 </div>
-                <!-- Salary by Department Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="font-semibold mb-4">Average Salary by Department</h3>
-                    <div class="chart-container"><canvas id="avgSalaryChart"></canvas></div>
+
+                <div class="glass-card p-8 shadow-sm hover:shadow-md transition">
+                    <h4 class="font-bold text-slate-800 mb-6">Talent Roles Mix</h4>
+                    <div class="chart-container"><canvas id="rolesChart"></canvas></div>
                 </div>
-                <!-- Performance Distribution Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="font-semibold mb-4">Performance Score Distribution</h3>
-                     <div class="chart-container" style="height:280px; width:280px; margin: auto;"><canvas id="performanceChart"></canvas></div>
+
+                <div class="glass-card p-8 shadow-sm hover:shadow-md transition">
+                    <h4 class="font-bold text-slate-800 mb-6 text-center">Cultural Score Distribution</h4>
+                    <div class="chart-container"><canvas id="perfChart"></canvas></div>
                 </div>
-                <!-- Tenure Distribution Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="font-semibold mb-4">Employee Tenure Distribution</h3>
+
+                <div class="glass-card p-8 shadow-sm hover:shadow-md transition">
+                    <h4 class="font-bold text-slate-800 mb-6">Experience Cohorts</h4>
                     <div class="chart-container"><canvas id="tenureChart"></canvas></div>
                 </div>
-                 <!-- Role Distribution Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="font-semibold mb-4">Top 5 Roles</h3>
-                    <div class="chart-container" style="height:280px; width:280px; margin: auto;"><canvas id="roleChart"></canvas></div>
+
+                <div class="glass-card p-8 shadow-sm hover:shadow-md transition">
+                    <h4 class="font-bold text-slate-800 mb-6">Compensation Benchmark</h4>
+                    <div class="chart-container"><canvas id="deptSalaryChart"></canvas></div>
                 </div>
-                 <!-- Hiring Trend Chart -->
-                <div class="bg-white p-6 rounded-lg shadow">
-                    <h3 class="font-semibold mb-4">Hiring Trend</h3>
-                    <div class="chart-container"><canvas id="hiringTrendChart"></canvas></div>
+
+                <div class="glass-card p-8 lg:col-span-3 shadow-sm hover:shadow-md transition">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h4 class="font-bold text-slate-800">Growth Velocity</h4>
+                            <p class="text-xs text-slate-400">Monthly new talent acquisition</p>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 320px;"><canvas id="hiringChart"></canvas></div>
                 </div>
-                <!-- Salary Prediction Chart -->
-                <div class="bg-white p-6 rounded-lg shadow col-span-1 lg:col-span-2">
-                    <h3 class="font-semibold mb-4">Salary Prediction based on Tenure</h3>
-                    <div class="chart-container"><canvas id="predictionChart"></canvas></div>
+
+                <div class="glass-card p-8 lg:col-span-3 shadow-sm hover:shadow-md transition">
+                    <h4 class="font-bold text-slate-800 mb-6">Predictive Modeling: Tenure vs Compensation Correlation</h4>
+                    <div class="chart-container" style="height: 400px;"><canvas id="predictionChart"></canvas></div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <!-- Data passed from Django -->
-    {{ dept_labels|json_script:"dept-labels" }}
-    {{ dept_employee_counts|json_script:"dept-employee-counts" }}
-    {{ salary_labels|json_script:"salary-labels" }}
-    {{ avg_salaries|json_script:"avg-salaries" }}
-    {{ prediction_data|json_script:"prediction-data" }}
-    {{ performance_labels|json_script:"performance-labels" }}
-    {{ performance_data|json_script:"performance-data" }}
-    {{ tenure_labels|json_script:"tenure-labels" }}
-    {{ tenure_data|json_script:"tenure-data" }}
-    {{ hiring_trend_labels|json_script:"hiring-trend-labels" }}
-    {{ hiring_trend_data|json_script:"hiring-trend-data" }}
-    {{ role_labels|json_script:"role-labels" }}
-    {{ role_data|json_script:"role-data" }}
+    <!-- Data Injection -->
+    {{ dept_labels|json_script:"lbl-dept" }}{{ dept_ids|json_script:"ids-dept" }}{{ dept_employee_counts|json_script:"data-counts" }}
+    {{ avg_salaries|json_script:"data-salaries" }}{{ performance_labels|json_script:"lbl-perf" }}{{ performance_data|json_script:"data-perf" }}
+    {{ tenure_labels|json_script:"lbl-tenure" }}{{ tenure_data|json_script:"data-tenure" }}{{ role_labels|json_script:"lbl-roles" }}
+    {{ role_data|json_script:"data-roles" }}{{ hiring_trend_labels|json_script:"lbl-hiring" }}{{ hiring_trend_data|json_script:"data-hiring" }}
+    {{ prediction_data|json_script:"data-predict" }}
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Helper function to safely parse JSON from script tags
-            function getJsonData(elementId) {
-                const element = document.getElementById(elementId);
-                if (!element) return null;
-                try { return JSON.parse(element.textContent); }
-                catch (e) { console.error(`Error parsing JSON from ${elementId}:`, e); return null; }
-            }
-
-            const chartColors = {
-                blue: 'rgba(59, 130, 246, 0.7)',
-                green: 'rgba(16, 185, 129, 0.7)',
-                purple: 'rgba(139, 92, 246, 0.7)',
-                red: 'rgba(239, 68, 68, 0.7)',
-                yellow: 'rgba(245, 158, 11, 0.7)',
-                teal: 'rgba(20, 184, 166, 0.7)',
+        document.addEventListener('DOMContentLoaded', () => {
+            const get = (id) => JSON.parse(document.getElementById(id).textContent);
+            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+            Chart.defaults.color = '#64748b';
+            
+            const commonOptions = { 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { border: { display: false }, grid: { color: '#f1f5f9' } }
+                }
             };
-            
-            const chartHoverColors = {
-                blue: 'rgba(59, 130, 246, 1)',
-                green: 'rgba(16, 185, 129, 1)',
-                purple: 'rgba(139, 92, 246, 1)',
-                red: 'rgba(239, 68, 68, 1)',
-                yellow: 'rgba(245, 158, 11, 1)',
-                teal: 'rgba(20, 184, 166, 1)',
-            };
-            
-            // Employee Count Chart
-            const employeeCountCtx = document.getElementById('employeeCountChart')?.getContext('2d');
-            const deptLabels = getJsonData('dept-labels');
-            const deptEmployeeCounts = getJsonData('dept-employee-counts');
-            
-            // --- DEBUGGING STEP ---
-            // This will print the data for the blank chart to your browser's console.
-            console.log("Data for Employee Count Chart:", { labels: deptLabels, counts: deptEmployeeCounts });
 
-            if (employeeCountCtx && deptLabels && deptEmployeeCounts) {
-                new Chart(employeeCountCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: deptLabels,
-                        datasets: [{
-                            label: 'Number of Employees',
-                            data: deptEmployeeCounts,
-                            backgroundColor: chartColors.blue,
-                            borderColor: chartHoverColors.blue,
-                            borderWidth: 1,
-                            hoverBackgroundColor: chartHoverColors.blue
-                        }]
-                    },
-                    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-                });
-            }
+            // 1. Dept Count
+            new Chart(document.getElementById('deptCountChart'), {
+                type: 'bar',
+                data: { labels: get('lbl-dept'), datasets: [{ data: get('data-counts'), backgroundColor: '#4f46e1', borderRadius: 12, barThickness: 24 }] },
+                options: { ...commonOptions, onClick: (e, els) => {
+                    if (els.length > 0) window.location.href = `employees/?department=${get('ids-dept')[els[0].index]}`;
+                }}
+            });
 
-            // Average Salary Chart
-            const avgSalaryCtx = document.getElementById('avgSalaryChart')?.getContext('2d');
-            const salaryLabels = getJsonData('salary-labels');
-            const avgSalaries = getJsonData('avg-salaries');
-            if (avgSalaryCtx && salaryLabels && avgSalaries) {
-                new Chart(avgSalaryCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: salaryLabels,
-                        datasets: [{
-                            label: 'Average Salary',
-                            data: avgSalaries,
-                            backgroundColor: chartColors.purple,
-                            borderColor: chartHoverColors.purple,
-                            borderWidth: 1,
-                            hoverBackgroundColor: chartHoverColors.purple
-                        }]
-                    },
-                    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: value => '$' + value } } } }
-                });
-            }
-            
-            // Performance Distribution Chart
-            const performanceCtx = document.getElementById('performanceChart')?.getContext('2d');
-            const performanceLabels = getJsonData('performance-labels');
-            const performanceData = getJsonData('performance-data');
-            if (performanceCtx && performanceLabels && performanceData) {
-                new Chart(performanceCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: performanceLabels,
-                        datasets: [{
-                            label: 'Performance Scores',
-                            data: performanceData,
-                            backgroundColor: [chartColors.green, chartColors.yellow, chartColors.blue, chartColors.purple, chartColors.red],
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: { maintainAspectRatio: false }
-                });
-            }
+            // 2. Roles Pie
+            new Chart(document.getElementById('rolesChart'), {
+                type: 'pie',
+                data: { labels: get('lbl-roles'), datasets: [{ data: get('data-roles'), backgroundColor: ['#4f46e1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b'], borderWidth: 4, borderColor: '#fff' }] },
+                options: { ...commonOptions, plugins: { legend: { display: true, position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: { size: 10, weight: 'bold' } } } } }
+            });
 
-            // Tenure Distribution Chart
-            const tenureCtx = document.getElementById('tenureChart')?.getContext('2d');
-            const tenureLabels = getJsonData('tenure-labels');
-            const tenureData = getJsonData('tenure-data');
-            if (tenureCtx && tenureLabels && tenureData) {
-                new Chart(tenureCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: tenureLabels,
-                        datasets: [{
-                            label: 'Number of Employees',
-                            data: tenureData,
-                            backgroundColor: chartColors.green,
-                             borderColor: chartHoverColors.green,
-                            borderWidth: 1,
-                            hoverBackgroundColor: chartHoverColors.green
-                        }]
-                    },
-                    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-                });
-            }
+            // 3. Perf Score
+            new Chart(document.getElementById('perfChart'), {
+                type: 'doughnut',
+                data: { labels: get('lbl-perf'), datasets: [{ data: get('data-perf'), backgroundColor: ['#f43f5e', '#f59e0b', '#3b82f6', '#10b981', '#6366f1'], cutout: '75%', borderRadius: 10, borderWidth: 4, borderColor: '#fff' }] },
+                options: { ...commonOptions, plugins: { legend: { display: true, position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: { size: 10, weight: 'bold' } } } } }
+            });
 
-            // Hiring Trend Chart
-            const hiringTrendCtx = document.getElementById('hiringTrendChart')?.getContext('2d');
-            const hiringTrendLabels = getJsonData('hiring-trend-labels');
-            const hiringTrendData = getJsonData('hiring-trend-data');
-            if (hiringTrendCtx && hiringTrendLabels && hiringTrendData) {
-                new Chart(hiringTrendCtx, {
-                    type: 'line',
-                    data: {
-                        labels: hiringTrendLabels,
-                        datasets: [{
-                            label: 'Hires per Month',
-                            data: hiringTrendData,
-                            backgroundColor: chartColors.teal,
-                            borderColor: chartHoverColors.teal,
-                            tension: 0.1,
-                            fill: true
-                        }]
-                    },
-                    options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
-                });
-            }
+            // 4. Tenure Distribution
+            new Chart(document.getElementById('tenureChart'), {
+                type: 'bar',
+                data: { labels: get('lbl-tenure'), datasets: [{ data: get('data-tenure'), backgroundColor: '#f59e0b', borderRadius: 8, barThickness: 30 }] },
+                options: commonOptions
+            });
 
-            // Role Distribution Chart
-            const roleCtx = document.getElementById('roleChart')?.getContext('2d');
-            const roleLabels = getJsonData('role-labels');
-            const roleData = getJsonData('role-data');
-            if (roleCtx && roleLabels && roleData) {
-                new Chart(roleCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: roleLabels,
-                        datasets: [{
-                            label: 'Role Distribution',
-                            data: roleData,
-                            backgroundColor: [chartColors.blue, chartColors.purple, chartColors.green, chartColors.yellow, chartColors.red],
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: { maintainAspectRatio: false }
-                });
-            }
-            
-            // Salary Prediction Chart
-            const predictionCtx = document.getElementById('predictionChart')?.getContext('2d');
-            const predictionData = getJsonData('prediction-data');
-            if (predictionCtx && predictionData) {
-                 new Chart(predictionCtx, {
+            // 5. Avg Salary Dept
+            new Chart(document.getElementById('deptSalaryChart'), {
+                type: 'bar',
+                data: { labels: get('lbl-dept'), datasets: [{ data: get('data-salaries'), backgroundColor: '#10b981', borderRadius: 8, barThickness: 20 }] },
+                options: commonOptions
+            });
+
+            // 6. Hiring Trend
+            new Chart(document.getElementById('hiringChart'), {
+                type: 'line',
+                data: { labels: get('lbl-hiring'), datasets: [{ data: get('data-hiring'), borderColor: '#4f46e1', borderWidth: 3, fill: true, backgroundColor: (ctx) => {
+                    const canvas = ctx.chart.ctx;
+                    const gradient = canvas.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(79, 70, 229, 0.2)');
+                    gradient.addColorStop(1, 'rgba(79, 70, 229, 0)');
+                    return gradient;
+                }, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderWidth: 2 }] },
+                options: { ...commonOptions, scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } }
+            });
+
+            // 7. Salary Prediction
+            const pred = get('data-predict');
+            if (pred) {
+                new Chart(document.getElementById('predictionChart'), {
                     type: 'scatter',
                     data: {
-                        datasets: [{
-                            type: 'line',
-                            label: 'Predicted Salary Trend',
-                            data: predictionData.predicted_salaries.map((salary, index) => ({ x: index, y: salary })),
-                            borderColor: chartColors.red,
-                            backgroundColor: 'transparent',
-                            borderWidth: 2,
-                            pointRadius: 0
-                        }, {
-                            type: 'scatter',
-                            label: 'Actual Employee Data',
-                            data: predictionData.actual_tenures.map((tenure, index) => ({x: tenure, y: predictionData.actual_salaries[index]})),
-                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                        }]
+                        datasets: [
+                            { label: 'Current Employee Pay', data: pred.actual_tenures.map((t, i) => ({x: t, y: pred.actual_salaries[i]})), backgroundColor: 'rgba(79, 70, 229, 0.4)', pointRadius: 5 },
+                            { label: 'Trend Prediction', data: Array.from({length: 21}, (_, i) => ({x: i, y: pred.predicted_salaries[i]})), type: 'line', borderColor: '#f43f5e', borderDash: [6, 6], borderWidth: 2, pointRadius: 0 }
+                        ]
                     },
-                    options: {
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: {
-                                type: 'linear',
-                                position: 'bottom',
-                                title: { display: true, text: 'Tenure (Years)' }
-                            },
-                            y: {
-                                title: { display: true, text: 'Salary ($)' },
-                                ticks: { callback: value => '$' + value }
-                            }
-                        }
+                    options: { 
+                        maintainAspectRatio: false, 
+                        plugins: { legend: { display: true, position: 'top', labels: { usePointStyle: true, boxWidth: 6 } } },
+                        scales: { 
+                            x: { title: { display: true, text: 'Experience (Years)', font: { weight: 'bold' } }, grid: { display: false } }, 
+                            y: { title: { display: true, text: 'Compensation ($)', font: { weight: 'bold' } }, border: { display: false } } 
+                        } 
                     }
                 });
             }
@@ -366,4 +269,3 @@
     </script>
 </body>
 </html>
-
