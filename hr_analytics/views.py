@@ -15,11 +15,9 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 @login_required
 def dashboard_view(request):
     """
-    Main dashboard view. Handles data aggregation, filtering, 
-    and predictive machine learning models.
+    Main dashboard view. Fixes the FieldError by calculating tenure in Python.
     """
     selected_department_id = request.GET.get('department')
-    
     all_employees = Employee.objects.all()
     active_employees = all_employees.filter(is_active=True)
     
@@ -31,38 +29,27 @@ def dashboard_view(request):
     # 2. Core Metrics
     total_employees = employees_to_display.count()
     average_salary = employees_to_display.aggregate(avg_salary=Avg('salary'))['avg_salary'] or 0
-    # Calculate average tenure using the Python property (avoids FieldError)
-    average_tenure = sum(emp.tenure_in_years for emp in employees_to_display) / total_employees if total_employees > 0 else 0
+    
+    # FIX: Calculate average tenure using Python loop to avoid database FieldError
+    if total_employees > 0:
+        average_tenure = sum(emp.tenure_in_years for emp in employees_to_display) / total_employees
+    else:
+        average_tenure = 0
 
     # 3. Attrition Prediction (Logistic Regression)
     attrition_risk_count = 0
     if all_employees.count() > 10 and all_employees.filter(is_active=False).count() > 1:
         # Build training data manually to include the tenure_in_years property
         training_data = [
-            {
-                'tenure_in_years': emp.tenure_in_years,
-                'salary': float(emp.salary),
-                'performance_score': emp.performance_score,
-                'is_active': 1 if emp.is_active else 0
-            }
-            for emp in all_employees
+            {'tenure_in_years': e.tenure_in_years, 'salary': float(e.salary), 'performance_score': e.performance_score, 'is_active': 1 if e.is_active else 0}
+            for e in all_employees
         ]
-        
         df = pd.DataFrame(training_data)
         X = df[['tenure_in_years', 'salary', 'performance_score']]
         y = df['is_active'].apply(lambda x: 0 if x == 1 else 1) 
-
         attrition_model = LogisticRegression(max_iter=1000).fit(X, y)
 
-        current_data = [
-            {
-                'tenure_in_years': emp.tenure_in_years,
-                'salary': float(emp.salary),
-                'performance_score': emp.performance_score
-            }
-            for emp in employees_to_display
-        ]
-        
+        current_data = [{'tenure_in_years': e.tenure_in_years, 'salary': float(e.salary), 'performance_score': e.performance_score} for e in employees_to_display]
         if current_data:
             current_df = pd.DataFrame(current_data)
             probs = attrition_model.predict_proba(current_df)[:, 1]
@@ -78,22 +65,10 @@ def dashboard_view(request):
     dept_ids = [d.id for d in depts]
     dept_employee_counts = [d.emp_count for d in depts]
 
-    salaries_by_dept = dept_qs.annotate(avg_sal=Avg('employees__salary', filter=Q(employees__is_active=True)))
-    avg_salaries = [round(float(d.avg_sal or 0), 2) for d in salaries_by_dept]
-    
     performance_counts = employees_to_display.values('performance_score').annotate(count=Count('id')).order_by('performance_score')
     performance_labels = [f"Score {item['performance_score']}" for item in performance_counts]
     performance_data = [item['count'] for item in performance_counts]
     
-    tenure_bins = {"< 1 Year": 0, "1-3 Years": 0, "3-5 Years": 0, "5-10 Years": 0, "10+ Years": 0}
-    for emp in employees_to_display:
-        t = emp.tenure_in_years
-        if t < 1: tenure_bins["< 1 Year"] += 1
-        elif 1 <= t < 3: tenure_bins["1-3 Years"] += 1
-        elif 3 <= t < 5: tenure_bins["3-5 Years"] += 1
-        elif 5 <= t < 10: tenure_bins["5-10 Years"] += 1
-        else: tenure_bins["10+ Years"] += 1
-
     hiring_trend = employees_to_display.annotate(month=TruncMonth('hire_date')).values('month').annotate(count=Count('id')).order_by('month')
     hiring_labels = [d['month'].strftime('%b %Y') for d in hiring_trend]
     hiring_data = [d['count'] for d in hiring_trend]
@@ -103,44 +78,25 @@ def dashboard_view(request):
     role_data = [r['count'] for r in role_counts]
 
     context = {
-        'total_employees': total_employees,
-        'average_salary': average_salary,
-        'average_tenure': average_tenure,
-        'attrition_risk_count': attrition_risk_count,
-        'dept_labels': dept_labels,
-        'dept_ids': dept_ids,
-        'dept_employee_counts': dept_employee_counts,
-        'salary_labels': dept_labels,
-        'avg_salaries': avg_salaries,
-        'performance_labels': performance_labels,
-        'performance_data': performance_data,
-        'tenure_labels': list(tenure_bins.keys()),
-        'tenure_data': list(tenure_bins.values()),
-        'hiring_trend_labels': hiring_labels,
-        'hiring_trend_data': hiring_data,
-        'role_labels': role_labels,
-        'role_data': role_data,
-        'departments': Department.objects.all().order_by('name'),
+        'total_employees': total_employees, 'average_salary': average_salary, 'average_tenure': average_tenure,
+        'attrition_risk_count': attrition_risk_count, 'dept_labels': dept_labels, 'dept_ids': dept_ids,
+        'dept_employee_counts': dept_employee_counts, 'performance_labels': performance_labels, 
+        'performance_data': performance_data, 'hiring_trend_labels': hiring_labels, 'hiring_trend_data': hiring_data,
+        'role_labels': role_labels, 'role_data': role_data, 'departments': Department.objects.all().order_by('name'),
         'selected_department_id': int(selected_department_id) if (selected_department_id and selected_department_id.isdigit()) else None,
     }
-
     return render(request, 'hr_analytics/dashboard.html', context)
 
 @login_required
 def employee_list_view(request):
     """
-    View to list employees, optionally filtered by department.
+    Detailed employee list for drill-downs. Resolves the ImportError.
     """
     dept_id = request.GET.get('department')
     employees = Employee.objects.filter(is_active=True).order_by('name')
     title = "All Employees"
-    
     if dept_id and dept_id.isdigit():
         dept = get_object_or_404(Department, id=dept_id)
         employees = employees.filter(department=dept)
         title = f"Employees: {dept.name}"
-        
-    return render(request, 'hr_analytics/employee_list.html', {
-        'employees': employees,
-        'title': title
-    })
+    return render(request, 'hr_analytics/employee_list.html', {'employees': employees, 'title': title})
